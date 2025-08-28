@@ -1,9 +1,8 @@
-import * as ort from "onnxruntime-web/webgpu";
-
 /**
  * @typedef {Object} sessionsConfig
  * @property {ort.InferenceSession} yolo_model - YOLO session.
  * @property {ort.InferenceSession} nms - nms session.
+ * @property {Object} ort - ONNX runtime instance.
  * @property {[Number]} input_shape  - input shape of the model.
  * @property {ort.Tensor<Int32Array>} tensor_topk - Topk value for nms, must be Int32Array.
  * @property {ort.Tensor<Float32Array>} tensor_iou_threshold - IOU threshold for nms.
@@ -33,7 +32,7 @@ export const inference_pipeline = async (input_el, sessionsConfig) => {
 
   src_mat.delete();
 
-  const input_tensor = new ort.Tensor("float32", src_mat_preProcessed.data32F, [
+  const input_tensor = new sessionsConfig.ort.Tensor("float32", src_mat_preProcessed.data32F, [
     1,
     3,
     div_height,

@@ -1,6 +1,5 @@
 import "./assets/App.css";
 import { useEffect, useRef, useState, useCallback } from "react";
-import * as ort from "onnxruntime-web/webgpu";
 import { model_loader } from "./utils/model_loader";
 import { inference_pipeline } from "./utils/inference_pipeline";
 import { draw_bounding_boxes } from "./utils/draw_bounding_boxes";
@@ -11,20 +10,6 @@ const input_shape = [1, 3, 640, 640];
 const topk = 100;
 const iou_threshold = 0.45;
 const score_threshold = 0.45;
-
-// config tensor
-const config = {
-  input_shape: input_shape,
-  tensor_topk: new ort.Tensor("int32", new Int32Array([topk])),
-  tensor_iou_threshold: new ort.Tensor(
-    "float32",
-    new Float32Array([iou_threshold])
-  ),
-  tensor_score_threshold: new ort.Tensor(
-    "float32",
-    new Float32Array([score_threshold])
-  ),
-};
 
 function App() {
   // setting Refs
@@ -78,17 +63,32 @@ function App() {
     try {
       // load model and warm up
       const start = performance.now();
-      const { yolo_model, nms } = await model_loader(
+      const { yolo_model, nms, ort } = await model_loader(
         device,
         model_path,
         nms_path,
-        config
+        input_shape
       );
       const end = performance.now();
+
+      // Create config tensors with the loaded ort instance
+      const config = {
+        input_shape: input_shape,
+        tensor_topk: new ort.Tensor("int32", new Int32Array([topk])),
+        tensor_iou_threshold: new ort.Tensor(
+          "float32",
+          new Float32Array([iou_threshold])
+        ),
+        tensor_score_threshold: new ort.Tensor(
+          "float32",
+          new Float32Array([score_threshold])
+        ),
+      };
 
       setSessionsConfig({
         yolo_model: yolo_model,
         nms: nms,
+        ort: ort,
         input_shape: input_shape,
         tensor_topk: config.tensor_topk,
         tensor_iou_threshold: config.tensor_iou_threshold,

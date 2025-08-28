@@ -14,9 +14,20 @@ export default defineConfig({
           src: "node_modules/onnxruntime-web/dist/*.wasm",
           dest: "./",
         },
+        {
+          src: "node_modules/onnxruntime-web/dist/*.mjs",
+          dest: "./",
+        },
+        {
+          src: "node_modules/onnxruntime-web/dist/*.js",
+          dest: "./",
+        },
       ],
     }),
   ],
   assetsInclude: ["**/*.onnx"],
-  base: "/yolo-object-detection-onnxruntime-web/"
+  base: "/yolo-object-detection-onnxruntime-web/",
+  optimizeDeps: {
+    exclude: ['onnxruntime-web']
+  }
 })
