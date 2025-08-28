@@ -100,9 +100,63 @@ function App() {
       setWarnUpTime((end - start).toFixed(2));
       setIsModelLoaded(true);
     } catch (error) {
+      console.error("Model loading failed:", error);
+      
+      // If WebGPU failed, try WASM as fallback
+      if (device === 'webgpu' && error.message.includes('no available backend found')) {
+        console.log("WebGPU failed, trying WASM fallback...");
+        modelStatusEl.textContent = "WebGPU failed, trying CPU...";
+        
+        try {
+          // Update device selector to WASM
+          deviceRef.current.value = 'wasm';
+          
+          // Retry with WASM
+          const start = performance.now();
+          const { yolo_model, nms, ort } = await model_loader(
+            'wasm',
+            model_path,
+            nms_path,
+            input_shape
+          );
+          const end = performance.now();
+
+          // Create config tensors with the loaded ort instance
+          const config = {
+            input_shape: input_shape,
+            tensor_topk: new ort.Tensor("int32", new Int32Array([topk])),
+            tensor_iou_threshold: new ort.Tensor(
+              "float32",
+              new Float32Array([iou_threshold])
+            ),
+            tensor_score_threshold: new ort.Tensor(
+              "float32",
+              new Float32Array([score_threshold])
+            ),
+          };
+
+          setSessionsConfig({
+            yolo_model: yolo_model,
+            nms: nms,
+            ort: ort,
+            input_shape: input_shape,
+            tensor_topk: config.tensor_topk,
+            tensor_iou_threshold: config.tensor_iou_threshold,
+            tensor_score_threshold: config.tensor_score_threshold,
+          });
+
+          modelStatusEl.textContent = "Model loaded (CPU fallback)";
+          modelStatusEl.style.color = "green";
+          setWarnUpTime((end - start).toFixed(2));
+          setIsModelLoaded(true);
+          return;
+        } catch (fallbackError) {
+          console.error("WASM fallback also failed:", fallbackError);
+        }
+      }
+      
       modelStatusEl.textContent = "Model loading failed";
       modelStatusEl.style.color = "red";
-      console.error(error);
     }
   }, [customModels]);
 
