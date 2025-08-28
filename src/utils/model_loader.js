@@ -24,7 +24,8 @@ export async function model_loader(device, model_path, nms_path, input_shape = [
     throw new Error("Failed to initialize ONNX runtime");
   }
 
-  ort.env.wasm.wasmPaths = `./`;
+  // Set wasmPaths to the assets folder for production builds
+  ort.env.wasm.wasmPaths = `${window.location.origin}${window.location.pathname}assets/`;
 
   // Set execution providers based on device
   const executionProviders = device === 'webgpu' ? ['webgpu'] : ['wasm'];

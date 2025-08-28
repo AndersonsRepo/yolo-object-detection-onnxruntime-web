@@ -12,15 +12,15 @@ export default defineConfig({
       targets: [
         {
           src: "node_modules/onnxruntime-web/dist/*.wasm",
-          dest: "./",
+          dest: "assets",
         },
         {
           src: "node_modules/onnxruntime-web/dist/*.mjs",
-          dest: "./",
+          dest: "assets",
         },
         {
           src: "node_modules/onnxruntime-web/dist/*.js",
-          dest: "./",
+          dest: "assets",
         },
       ],
     }),
