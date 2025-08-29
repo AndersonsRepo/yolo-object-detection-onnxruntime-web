@@ -1,0 +1,41 @@
+# Cursor Rules for YOLO Object Detection Robovision UI Project
+
+## Project Context
+This is a YOLO object detection web application that we're redesigning with a futuristic robovision aesthetic using shadcn/ui components.
+
+## MCP Configuration
+The project has shadcn MCP server configured in `.vscode/settings.json` for AI assistance with shadcn/ui components.
+
+## Tech Stack
+- React 18 with Vite
+- Tailwind CSS v4
+- shadcn/ui components
+- Framer Motion for animations
+- ONNX Runtime Web for ML inference
+
+## Design Goals
+- Futuristic robovision aesthetic
+- Holographic HUD interface
+- Glowing elements and transparency
+- Sci-fi heads-up display style
+- Maintain all existing functionality
+
+## Available Components
+- Button, Select, Card, Badge, Progress
+- Separator, Tooltip, Input, Label
+- All shadcn/ui components are available
+
+## Code Style
+- Use shadcn/ui components when possible
+- Maintain dark theme
+- Add futuristic styling with glowing effects
+- Use Framer Motion for smooth animations
+- Preserve existing functionality completely
+
+## File Structure
+- `src/components/ui/` - shadcn/ui components
+- `src/lib/utils.js` - Utility functions
+- `src/assets/App.css` - Main styles
+- `components.json` - shadcn configuration
+
+

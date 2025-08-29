@@ -66,19 +66,27 @@ export async function model_loader(device, model_path, nms_path, input_shape = [
       input_shape
     );
     
-    const { output0 } = await yolo_model.run({ images: dummy_input_tensor });
-    const { output_selected } = await nms.run({
-      input: output0,
-      topk: new ort.Tensor("int32", new Int32Array([100])),
-      iou_threshold: new ort.Tensor("float32", new Float32Array([0.45])),
-      score_threshold: new ort.Tensor("float32", new Float32Array([0.45])),
-    });
-    
-    output0.dispose();
-    output_selected.dispose();
-    
-    console.log("✅ Warm-up inference completed successfully");
-    return { yolo_model, nms, ort };
+    try {
+      const { output0 } = await yolo_model.run({ images: dummy_input_tensor });
+      const { output_selected } = await nms.run({
+        input: output0,
+        topk: new ort.Tensor("int32", new Int32Array([100])),
+        iou_threshold: new ort.Tensor("float32", new Float32Array([0.45])),
+        score_threshold: new ort.Tensor("float32", new Float32Array([0.45])),
+      });
+      
+      // Clean up warm-up tensors
+      output0.dispose();
+      output_selected.dispose();
+      dummy_input_tensor.dispose();
+      
+      console.log("✅ Warm-up inference completed successfully");
+      return { yolo_model, nms, ort };
+    } catch (warmupError) {
+      // Clean up on error
+      dummy_input_tensor.dispose();
+      throw warmupError;
+    }
   } catch (sessionError) {
     console.error("Session creation or warmup failed:", sessionError);
     throw new Error(`Model loading failed: ${sessionError.message}`);
